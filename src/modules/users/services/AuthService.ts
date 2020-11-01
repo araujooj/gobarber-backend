@@ -1,22 +1,13 @@
 import { getRepository } from 'typeorm';
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import uploadConfig from '@config/upload';
+import authConfig from '@config/auth';
 import AppError from '@shared/errors/AppError';
 import User from '@modules/users/infra/typeorm/entities/User';
-
-interface Request {
-  email: string;
-  password: string;
-}
-
-interface Response {
-  user: User;
-  token: string;
-}
+import { IToken, IAuthUser } from '../dtos/IAuthServiceDTO';
 
 export default class AuthService {
-  public async execute({ email, password }: Request): Promise<Response> {
+  public async execute({ email, password }: IAuthUser): Promise<IToken> {
     const userRepository = getRepository(User);
 
     const user = await userRepository.findOne({
