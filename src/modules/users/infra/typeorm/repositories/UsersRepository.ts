@@ -11,38 +11,37 @@ implements IUsersRepository {
     this.ormRepository = getRepository(User)
   }
 
-  findById(id: string): Promise<User | undefined> {
-    throw new Error('Method not implemented.');
+  public async findById(id: string): Promise<User | undefined> {
+    const findUser = await this.ormRepository.findOne(id);
+
+    return findUser || undefined;
   }
 
-  findByEmail(email: string): Promise<User | undefined> {
-    throw new Error('Method not implemented.');
-  }
-
-  save(user: User): Promise<User> {
-    throw new Error('Method not implemented.');
-  }
-
-  public async findByDate(date: Date): Promise<User | undefined> {
+  public async findByEmail(email: string): Promise<User | undefined> {
     const findUser = await this.ormRepository.findOne({
       where: {
-        date,
+        email,
       },
     });
 
     return findUser || undefined;
   }
 
+  public async save(user: User): Promise<User> {
+    const saveUser = await this.ormRepository.save(user)
+    return saveUser;
+  }
+
   public async create({ name, email, password }: ICreateUserDTO): Promise<User> {
-    const appointment = this.ormRepository.create({
+    const user = this.ormRepository.create({
       name,
       email,
       password,
     })
 
-    await this.ormRepository.save(appointment);
+    await this.ormRepository.save(user);
 
-    return appointment;
+    return user;
   }
 }
 
