@@ -33,12 +33,10 @@ describe('CreateUser', () => {
       password: '123456',
     })
 
-    const duplicatedUser = createUserService.execute({
+    expect(createUserService.execute({
       name: 'John Doe',
       email: 'john@example.com',
       password: '123456',
-    })
-
-    expect(duplicatedUser).rejects.toBeInstanceOf(AppError)
+    })).rejects.toBeInstanceOf(AppError)
   })
 })
