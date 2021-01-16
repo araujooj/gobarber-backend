@@ -1,7 +1,5 @@
+import 'reflect-metadata';
 import { injectable, inject } from 'tsyringe'
-import path from 'path';
-import fs from 'fs';
-import uploadConfig from '@config/upload';
 import AppError from '@shared/errors/AppError';
 import User from '@modules/users/infra/typeorm/entities/User';
 import IStorageProvider from '@shared/container/providers/StorageProvider/models/IStorageProvider';
