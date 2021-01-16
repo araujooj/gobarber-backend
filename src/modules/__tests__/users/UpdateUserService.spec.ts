@@ -3,15 +3,22 @@ import AppError from '@shared/errors/AppError';
 import UpdateUserAvatarService from '@modules/users/services/UpdateUserAvatarService';
 import FakeUserRepository from '@modules/users/repositories/fakes/FakeUserRepository'
 
+let fakeUserRepository : FakeUserRepository
+let fakeStorageProvider: FakeStorageProvider
+let updateUserAvatarService: UpdateUserAvatarService
+
 describe('UpdateUserAvatar', () => {
+  beforeEach(() => {
+    fakeUserRepository = new FakeUserRepository();
+
+    fakeStorageProvider = new FakeStorageProvider();
+
+    updateUserAvatarService = new UpdateUserAvatarService(
+      fakeUserRepository,
+      fakeStorageProvider,
+    );
+  })
   it('should be able to update user avatar', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-
-    const fakeStorageProvider = new FakeStorageProvider();
-
-    const updateUserAvatarService = new UpdateUserAvatarService(fakeUserRepository,
-      fakeStorageProvider);
-
     const user = await fakeUserRepository.create({
       name: 'John Doe',
       email: 'john@example.com',
@@ -27,16 +34,7 @@ describe('UpdateUserAvatar', () => {
   })
 
   it('should delete old avatar when updating new one', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-
-    const fakeStorageProvider = new FakeStorageProvider();
-
     const deleteFile = jest.spyOn(fakeStorageProvider, 'deleteFile')
-
-    const updateUserAvatarService = new UpdateUserAvatarService(
-      fakeUserRepository,
-      fakeStorageProvider,
-    );
 
     const user = await fakeUserRepository.create({
       name: 'John Doe',
@@ -59,16 +57,7 @@ describe('UpdateUserAvatar', () => {
   })
 
   it('should not be able to update user avatar from non existing user', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-
-    const fakeStorageProvider = new FakeStorageProvider();
-
-    const updateUserAvatarService = new UpdateUserAvatarService(
-      fakeUserRepository,
-      fakeStorageProvider,
-    );
-
-    expect(updateUserAvatarService.execute({
+    await expect(updateUserAvatarService.execute({
       user_id: '1',
       avatarFilename: 'avatar.jpg',
     })).rejects.toBeInstanceOf(AppError)

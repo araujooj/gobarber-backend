@@ -3,14 +3,22 @@ import AppError from '@shared/errors/AppError';
 import FakeUserRepository from '@modules/users/repositories/fakes/FakeUserRepository'
 import CreateUserService from '@modules/users/services/CreateUserService';
 
+let fakeUserRepository: FakeUserRepository;
+
+let fakeHashProvider: FakeHashProvider;
+
+let createUserService: CreateUserService;
+
 describe('CreateUser', () => {
+  beforeEach(() => {
+    fakeUserRepository = new FakeUserRepository();
+
+    fakeHashProvider = new FakeHashProvider();
+
+    createUserService = new CreateUserService(fakeUserRepository, fakeHashProvider);
+  })
+
   it('should be able to create a new user', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-
-    const fakeHashProvider = new FakeHashProvider();
-
-    const createUserService = new CreateUserService(fakeUserRepository, fakeHashProvider);
-
     const user = await createUserService.execute({
       name: 'John Doe',
       email: 'john@example.com',
@@ -21,19 +29,13 @@ describe('CreateUser', () => {
   })
 
   it('should not be able to create a new user with duplicated email', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-
-    const fakeHashProvider = new FakeHashProvider();
-
-    const createUserService = new CreateUserService(fakeUserRepository, fakeHashProvider);
-
     await createUserService.execute({
       name: 'John Doe',
       email: 'john@example.com',
       password: '123456',
     })
 
-    expect(createUserService.execute({
+    await expect(createUserService.execute({
       name: 'John Doe',
       email: 'john@example.com',
       password: '123456',

@@ -4,14 +4,21 @@ import FakeUserRepository from '@modules/users/repositories/fakes/FakeUserReposi
 import AuthService from '@modules/users/services/AuthService';
 import CreateUserService from '@modules/users/services/CreateUserService'
 
+let fakeUserRepository: FakeUserRepository;
+let fakeHashProvider: FakeHashProvider;
+let authenticateUser: AuthService;
+let createUser: CreateUserService;
+
 describe('AuthUser', () => {
+  beforeEach(() => {
+    fakeUserRepository = new FakeUserRepository();
+    fakeHashProvider = new FakeHashProvider();
+
+    authenticateUser = new AuthService(fakeUserRepository, fakeHashProvider);
+    createUser = new CreateUserService(fakeUserRepository, fakeHashProvider);
+  })
+
   it('should be able to authenticate', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-    const fakeHashProvider = new FakeHashProvider();
-
-    const authenticateUser = new AuthService(fakeUserRepository, fakeHashProvider);
-    const createUser = new CreateUserService(fakeUserRepository, fakeHashProvider);
-
     const user = await createUser.execute({
       name: 'John Doe',
       email: 'john@example.com',
@@ -28,12 +35,6 @@ describe('AuthUser', () => {
   })
 
   it('should not be able to authenticate with wrong password', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-    const fakeHashProvider = new FakeHashProvider();
-
-    const authenticateUser = new AuthService(fakeUserRepository, fakeHashProvider);
-    const createUser = new CreateUserService(fakeUserRepository, fakeHashProvider);
-
     await createUser.execute({
       name: 'John Doe',
       email: 'john@example.com',
@@ -47,12 +48,7 @@ describe('AuthUser', () => {
   })
 
   it('should not be able to authenticate with a non existing user', async () => {
-    const fakeUserRepository = new FakeUserRepository();
-    const fakeHashProvider = new FakeHashProvider();
-
-    const authenticateUser = new AuthService(fakeUserRepository, fakeHashProvider);
-
-    expect(authenticateUser.execute({
+    await expect(authenticateUser.execute({
       email: 'john@example.com',
       password: '123456',
     })).rejects.toBeInstanceOf(AppError)
